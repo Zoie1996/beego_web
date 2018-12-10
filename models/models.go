@@ -42,6 +42,7 @@ type Topic struct {
 
 func RegisterDB() {
 	if !com.IsExist(_DB_NAME) {
+
 		os.MkdirAll(path.Dir(_DB_NAME), os.ModePerm)
 		os.Create(_DB_NAME)
 	}

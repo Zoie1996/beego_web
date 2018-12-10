@@ -10,3 +10,6 @@ type LoginController struct {
 func (self *LoginController) Get(){
 	self.TplName = "login.html"
 }
+func (self *LoginController) Post(){
+	
+}
