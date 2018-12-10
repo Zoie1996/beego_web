@@ -7,9 +7,10 @@ import (
 type LoginController struct {
 	beego.Controller
 }
-func (self *LoginController) Get(){
+
+func (self *LoginController) Get() {
 	self.TplName = "login.html"
 }
-func (self *LoginController) Post(){
-	
+func (self *LoginController) Post() {
+
 }

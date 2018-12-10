@@ -10,6 +10,7 @@ type HomeController struct {
 
 func (self *HomeController) Get() {
 	self.Data["IsHome"] = true
+	self.Data["IsLogin"] = true
 	self.TplName = "home.html"
 }
 // func (c *MainController) Get() {
