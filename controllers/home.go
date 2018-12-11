@@ -10,9 +10,11 @@ type HomeController struct {
 
 func (self *HomeController) Get() {
 	self.Data["IsHome"] = true
-	self.Data["IsLogin"] = true
+	// 检查是否登录成功
+	self.Data["IsLogin"] = checkAccount(self.Ctx)
 	self.TplName = "home.html"
 }
+
 // func (c *MainController) Get() {
 // 	c.TplName = "home.html"
 // 	c.Data["Website"] = "beego.me"

@@ -1,4 +1,20 @@
 {{define "navbar"}}
+<style>
+  body {
+    background: url("/static/img/44.jpg") no-repeat;
+    background-size: cover;
+  }
+
+  .navbar {
+    background-color: rgb(206, 241, 247);
+  }
+
+  .navbar-nav>.active>a,
+  .navbar-nav>.active>a:hover,
+  .navbar-nav>.active>a:focus {
+    background-color: #aee6ef
+  }
+</style>
 <div class="navbar navbar-default navbar-static-top">
   <div class="container">
     <div>
@@ -10,17 +26,16 @@
       </ul>
     </div>
 
-
     <div class="pull-right">
       <ul class="nav navbar-nav">
         {{if .IsLogin}}
         <li><a href="/login?exit=true">退出</a></li>
         {{else}}
-        <li><a href="/login"></a>登录</li>
+        <li><a href="/login">登录</a></li>
         {{end}}
       </ul>
     </div>
-    
+
   </div>
 </div>
 {{end}}

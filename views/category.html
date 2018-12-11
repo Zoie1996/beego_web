@@ -1,0 +1,70 @@
+{{template "header"}}
+
+<title>文章</title>
+
+<body>
+    {{template "navbar".}}
+
+
+    <div class="container">
+        <h1>分类列表</h1>
+        <form action="/category" method="GET" style="height:40px;margin-left:-28px">
+            <div class="col-lg-10">
+                <div class='input-group col-lg-4'>
+                    <input class="form-control required" type="text" placeholder="请输入分类名称" id="name" name="name"
+                        autofocus="autofocus" maxlength="30" />
+                    <span class="input-group-btn">
+                        <input type="hidden" name="op" value="add">
+                        <button type="submit" class="btn btn-success" name="submit" onclick="chectInput();">添加</button>
+                    </span>
+                </div>
+                <div class="alert alert-warning col-lg-3" style="display:none">
+                    <a href="#" class="close" data-dismiss="alert">
+                        &times;
+                    </a>
+                    <strong>警告！</strong>
+                    <span id="error"></span>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="container" style="margin-top:30px">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>名称</th>
+                    <th>文章数</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Categories}}
+                <tr>
+                    <td>{{.ID}}</td>
+                    <td>{{.Title}}</td>
+                    <td>{{.TopicCount}}</td>
+                    <td><a href="/category?op-del&id={{.ID}}">删除</a></td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+
+
+</body>
+<script type="text/javascript">
+    $("button").click(function () {
+        var name = document.getElementById('name');
+        if (name.value.length == 0) {
+            $(".submit").css("float", "left")
+            $("#error").text('请输入分类名称');
+            $(".alert").css("padding", "7px").css("margin-bottom", "0px");;
+
+            $(".alert-warning").show(500);
+            return false
+        }
+    })
+</script>
+
+</html>
