@@ -19,15 +19,20 @@ func (self *CategoryController) Get() {
 			break
 		}
 		err := models.AddCategory(name)
-		if err == nil {
-			// 如果添加成功，重定向到首页
-			self.Redirect("/category", 301)
+		if err != nil {
+			beego.Error(err)
 		}
+		self.Redirect("/category", 301)
 	case "del":
 		id := self.Input().Get("id")
 		if len(id) == 0 {
 			break
 		}
+		err := models.DelCategory(id)
+		if err == nil {
+			beego.Error(err)
+		}
+		self.Redirect("/category", 301)
 
 	}
 	self.Data["IsTopic"] = true

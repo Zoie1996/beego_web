@@ -3,6 +3,7 @@ package models
 import (
 	"os"
 	"path"
+	"strconv"
 	"time"
 
 	"github.com/Unknwon/com"
@@ -69,6 +70,7 @@ func AddCategory(name string) error {
 		// 已经找到同名分类名
 		return err
 	}
+	// 添加分类
 	_, err = o.Insert(category)
 	if err != nil {
 		// 插入失败
@@ -76,4 +78,17 @@ func AddCategory(name string) error {
 	}
 	// 没有发生错误，返回nil
 	return nil
+}
+
+func DelCategory(id string) error {
+	cid, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return err
+	}
+	o := orm.NewOrm()
+	category := &Category{ID: cid}
+	// 删除该分类
+	_, err = o.Delete(category)
+	return err
+
 }
