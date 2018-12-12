@@ -5,7 +5,7 @@
 <body>
     {{template "navbar".}}
     <div class="container">
-        <h1>分类列表</h1>
+        <h1>添加文章</h1>
         <form action="/topic" method="POST" style="margin-top:20px">
             <div class="col-lg-10">
                 <div class="form-group">
@@ -16,7 +16,7 @@
                     <label for="name">文章内容</label>
                     <textarea class="form-control" type="text" rows="10" name="content" placeholder="请输入文章内容"></textarea>
                 </div>
-                <button type="submit" class="btn btn-success" name="submit" onclick="chectInput();">添加</button>
+                <button type="submit" class="btn btn-success" name="submit">添加</button>
 
             </div>
         </form>

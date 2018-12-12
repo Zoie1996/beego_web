@@ -35,7 +35,7 @@ func (self *CategoryController) Get() {
 		self.Redirect("/category", 301)
 
 	}
-	self.Data["IsTopic"] = true
+	self.Data["IsCategory"] = true
 	// 检查是否登录成功
 	self.Data["IsLogin"] = checkAccount(self.Ctx)
 	self.TplName = "category.html"

@@ -55,11 +55,17 @@ func RegisterDB() {
 }
 
 // AddTopic 添加文章
-func AddTopic(title, content string) error {
+func AddTopic(id, title, content string) error {
 	o := orm.NewOrm()
 	topic := &Topic{Title: title, Content: content}
-	// 添加文章
-	_, err := o.Insert(topic)
+	var err error
+	if len(id) == 0 {
+		// 添加文章
+		_, err = o.Insert(topic)
+	} else {
+		// 修改文章
+		ModifyTopic(id, title, content)
+	}
 	return err
 
 }
@@ -79,6 +85,69 @@ func GetAllTopics(idDecs bool) ([]*Topic, error) {
 
 	}
 	return topics, err
+}
+
+// GetTopic 获取文章详情
+func GetTopic(id string) (*Topic, error) {
+	tid, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	o := orm.NewOrm()
+	topic := new(Topic)
+	qs := o.QueryTable("topic")
+	err = qs.Filter("id", tid).One(topic)
+	if err != nil {
+		return nil, err
+	}
+	topic.Views++
+	_, err = o.Update(topic)
+	return topic, err
+}
+
+// GetTopicModify 获取文章详情
+func GetTopicModify(id string) (*Topic, error) {
+	tid, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	o := orm.NewOrm()
+	topic := new(Topic)
+	qs := o.QueryTable("topic")
+	err = qs.Filter("id", tid).One(topic)
+	if err != nil {
+		return nil, err
+	}
+	return topic, err
+}
+
+func ModifyTopic(id, title, content string) error {
+	tid, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return err
+	}
+	o := orm.NewOrm()
+	topic := &Topic{ID: tid}
+	err = o.Read(topic)
+	if err == nil {
+		topic.Title = title
+		topic.Content = content
+		o.Update(topic)
+	}
+	return err
+}
+
+// DelTopic 删除文章
+func DelTopic(id string) error {
+	tid, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return err
+	}
+	o := orm.NewOrm()
+	topic := &Topic{ID: tid}
+	_, err = o.Delete(topic)
+	return err
+
 }
 
 // GetAllCategories 获取所有分类列表

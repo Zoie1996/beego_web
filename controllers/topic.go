@@ -25,13 +25,14 @@ func (self *TopicController) Post() {
 	if !checkAccount(self.Ctx) {
 		self.Redirect("/login", 302)
 	}
+	id := self.Input().Get("id")
 	title := self.Input().Get("title")
 	content := self.Input().Get("content")
 	if len(title) == 0 || len(content) == 0 {
 		self.Redirect("/topic/add", 302)
 		return
 	}
-	err := models.AddTopic(title, content)
+	err := models.AddTopic(id, title, content)
 	if err != nil {
 		beego.Error(err)
 	}
@@ -40,4 +41,37 @@ func (self *TopicController) Post() {
 
 func (self *TopicController) Add() {
 	self.TplName = "topic_add.html"
+}
+
+func (self *TopicController) Del() {
+	err := models.DelTopic(self.Ctx.Input.Param("0"))
+	if err != nil {
+		beego.Error(err)
+	}
+	self.Redirect("/topic", 302)
+	return
+}
+
+func (self *TopicController) View() {
+	self.TplName = "topic_view.html"
+	var err error
+	self.Data["Topic"], err = models.GetTopic(self.Ctx.Input.Param("0"))
+	if err != nil {
+		beego.Error(err)
+		self.Redirect("/", 302)
+		return
+	}
+	self.Data["TID"] = self.Ctx.Input.Param("0")
+}
+func (self *TopicController) Modify() {
+	self.TplName = "topic_modify.html"
+	var err error
+	self.Data["Topic"], err = models.GetTopicModify(self.Ctx.Input.Param("0"))
+	if err != nil {
+		beego.Error(err)
+		self.Redirect("/", 302)
+		return
+	}
+	self.Data["TID"] = self.Ctx.Input.Param("0")
+
 }

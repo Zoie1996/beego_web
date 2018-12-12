@@ -8,9 +8,13 @@
 
     <div class="container" style="margin-bottom:30px">
         <h1>文章列表</h1>
-        <a class="btn btn-success" href="/topic/add" style="text-decoration:none;color: #fff;">
-            添加文章
-        </a>
+        <div class="text-right" style="margin:30px">
+            <a class="btn btn-success" href="/topic/add" style="text-decoration:none;color: #fff ">
+                添加文章
+            </a>
+        </div>
+
+
         <table class="table">
             <thead>
                 <tr>
@@ -19,16 +23,18 @@
                     <th>最后更新</th>
                     <th>浏览</th>
                     <th>回复数</th>
+                    <th>操作</th>
                 </tr>
             </thead>
             <tbody>
                 {{range .Topics}}
                 <tr>
                     <td>{{.ID}}</td>
-                    <td>{{.Title}}</td>
-                    <td>{{.Updated}}</td>
+                    <td><a href="/topic/view/{{.ID}}">{{.Title}}</a></td>
+                    <td>{{.Updated.Format "2006-01-02 00:00:00"}}</td>
                     <td>{{.Views}}</td>
                     <td>{{.Replycount}}</td>
+                    <td><a href="/topic/del/{{.ID}}">删除</a></td>
                 </tr>
                 {{end}}
             </tbody>
