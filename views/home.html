@@ -1,40 +1,37 @@
 {{template "header"}}
 
 <title>首页 - 我的 beego 博客</title>
+
+
 <body>
-{{template "navbar".}}
+  {{template "navbar".}}
 
-
-  <div class="container" margin-top="100px">
-    <div class="page-header">
-      <h1>我的第一篇博客</h1>
-      <h6 class="text-muted">文章发表于2018年XX月XX日</h6>
-      <a href="">欢迎观看第一篇博客,xxxxxxx</a>
+  {{range .Topics}}
+  <div class="container">
+    <div class="page-header" style="margin:10px 0">
+      <h1>{{.Title}}</h1>
+      <h6 class="text-muted">文章发表于{{.Created.Format "2006年01月02日"}}，共有{{.Views}}次浏览，{{.Replycount}}个评论</h6>
+      <h4><a href="/Topic?id={{.ID}}">{{.Content}}</a></h4>
     </div>
   </div>
-  <div class="container" margin-top="100px">
-    <div class="page-header">
-      <h1>我的第一篇博客</h1>
-      <h6 class="text-muted">文章发表于2018年XX月XX日</h6>
-      <a href="">欢迎观看第一篇博客,xxxxxxx</a>
-    </div>
-  </div>
+  {{end}}
+
 
 </body>
 <script type="text/javascript">
   $(document).ready(function () {
-      var username = document.getElementById('username');
-      var password = document.getElementById('password');
-      if (username.value.length == 0) {
-          $("#error").text('请输入用户名')
-          $(".alert-warning").show(2000);
-          return false
-      }
-      if (password.value.length == 0) {
-          $("#error").text('请输入密码')
-          $(".alert-warning").show(2000);
-          return false
-      }
+    var username = document.getElementById('username');
+    var password = document.getElementById('password');
+    if (username.value.length == 0) {
+      $("#error").text('请输入用户名')
+      $(".alert-warning").show(2000);
+      return false
+    }
+    if (password.value.length == 0) {
+      $("#error").text('请输入密码')
+      $(".alert-warning").show(2000);
+      return false
+    }
 
 
   })

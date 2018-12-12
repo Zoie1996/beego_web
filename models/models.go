@@ -20,7 +20,7 @@ type Category struct {
 	ID            int64     //分类ID
 	Title         string    // 分类标题
 	Created       time.Time `orm:"index;auto_now_add;type(datetime)"` // 创建时间
-	Views         int64     `orm:"index"`
+	Views         int64     `orm:"index"`                             //六看
 	TopicTime     time.Time `orm:"index;auto_now_add;type(datetime)"` // 文章时间
 	TopicCount    int64     // 文章统计
 	TopicasUserID int64     //用户ID
@@ -34,13 +34,14 @@ type Topic struct {
 	Attachment     string    `orm:"null"`                              // 附件
 	Created        time.Time `orm:"index;auto_now_add;type(datetime)"` //创建时间
 	Updated        time.Time `orm:"index;auto_now;type(datetime)"`     //更新时间
-	Views          int64
-	Author         string
-	ReplyTime      time.Time `orm:"index;null"` // 最后回复时间
-	Replycount     int64     `orm:"default(0)"` //回复统计
-	ReplylastUsrID int64     `orm:"null"`       // 恢复用户ID
+	Views          int64     // 浏览
+	Author         string    // 作者
+	ReplyTime      time.Time `orm:"auto_now;type(datetime)"` // 最后回复时间
+	Replycount     int64     `orm:"default(0)"`              // 回复统计
+	ReplylastUsrID int64     `orm:"null"`                    // 恢复用户ID
 }
 
+// RegisterDB 注册数据库
 func RegisterDB() {
 	if !com.IsExist(_DB_NAME) {
 
@@ -53,14 +54,43 @@ func RegisterDB() {
 	orm.RegisterDataBase("default", _SQLITES_DRIVER, _DB_NAME, 10)
 }
 
-func GetAllCategories() ([]*Category, error) {
+// AddTopic 添加文章
+func AddTopic(title, content string) error {
 	o := orm.NewOrm()
-	Categories := make([]*Category, 0)
-	qs := o.QueryTable("Category")
-	_, err := qs.All(&Categories)
-	return Categories, err
+	topic := &Topic{Title: title, Content: content}
+	// 添加文章
+	_, err := o.Insert(topic)
+	return err
+
 }
 
+// GetAllTopics 获取所有文章列表
+func GetAllTopics(idDecs bool) ([]*Topic, error) {
+	o := orm.NewOrm()
+	topics := make([]*Topic, 0)
+	qs := o.QueryTable("Topic")
+	var err error
+	if idDecs {
+		// 根据时间倒序排序
+		_, err = qs.OrderBy("-created").All(&topics)
+
+	} else {
+		_, err = qs.All(&topics)
+
+	}
+	return topics, err
+}
+
+// GetAllCategories 获取所有分类列表
+func GetAllCategories() ([]*Category, error) {
+	o := orm.NewOrm()
+	categories := make([]*Category, 0)
+	qs := o.QueryTable("Category")
+	_, err := qs.All(&categories)
+	return categories, err
+}
+
+// AddCategory 添加分类
 func AddCategory(name string) error {
 	o := orm.NewOrm()
 	category := &Category{Title: name}
@@ -72,14 +102,11 @@ func AddCategory(name string) error {
 	}
 	// 添加分类
 	_, err = o.Insert(category)
-	if err != nil {
-		// 插入失败
-		return err
-	}
-	// 没有发生错误，返回nil
-	return nil
+	// 返回err 或 nil
+	return err
 }
 
+// DelCategory 删除分类
 func DelCategory(id string) error {
 	cid, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {

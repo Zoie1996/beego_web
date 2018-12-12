@@ -8,25 +8,27 @@
 
     <div class="container" style="margin-bottom:30px">
         <h1>文章列表</h1>
-        <button type="submit" class="btn btn-success" name="submit"><a href="/topic/add" style="text-decoration:none;color: #fff;">添加文章</a></button>
+        <a class="btn btn-success" href="/topic/add" style="text-decoration:none;color: #fff;">
+            添加文章
+        </a>
         <table class="table">
             <thead>
                 <tr>
                     <th>#</th>
                     <th>名称</th>
-                    <th>文章数</th>
-                    <th>操作</th>
+                    <th>最后更新</th>
                     <th>浏览</th>
+                    <th>回复数</th>
                 </tr>
             </thead>
             <tbody>
-                {{range .Categories}}
+                {{range .Topics}}
                 <tr>
                     <td>{{.ID}}</td>
                     <td>{{.Title}}</td>
-                    <td>{{.TopicCount}}</td>
-                    <td>{{.TopicCount}}</td>
-                    <td>{{.TopicCount}}</td>
+                    <td>{{.Updated}}</td>
+                    <td>{{.Views}}</td>
+                    <td>{{.Replycount}}</td>
                 </tr>
                 {{end}}
             </tbody>
