@@ -14,3 +14,7 @@ func (self *TopicController) Get() {
 	self.Data["IsLogin"] = checkAccount(self.Ctx)
 	self.TplName = "topic.html"
 }
+
+func (self *TopicController) Add() {
+	self.TplName = "topic_add.html"
+}

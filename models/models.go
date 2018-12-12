@@ -17,28 +17,28 @@ const (
 )
 
 type Category struct {
-	ID            int64
-	Title         string
-	Created       time.Time `orm:"index;auto_now_add;type(datetime)"`
+	ID            int64     //分类ID
+	Title         string    // 分类标题
+	Created       time.Time `orm:"index;auto_now_add;type(datetime)"` // 创建时间
 	Views         int64     `orm:"index"`
-	TopicTime     time.Time `orm:"index;auto_now_add;type(datetime)"`
-	TopicCount    int64
-	TopicasUserID int64
+	TopicTime     time.Time `orm:"index;auto_now_add;type(datetime)"` // 文章时间
+	TopicCount    int64     // 文章统计
+	TopicasUserID int64     //用户ID
 }
 
 type Topic struct {
 	ID             int64
-	UID            int64
-	Title          string
-	Content        string `orm:"size(5000)"`
-	Attaclment     string
-	Created        time.Time `orm:"index"`
-	Updated        time.Time `orm:"index"`
+	UID            int64     // 用户ID
+	Title          string    // 文章标题
+	Content        string    `orm:"size(5000)"`                        //文章内容
+	Attachment     string    `orm:"null"`                              // 附件
+	Created        time.Time `orm:"index;auto_now_add;type(datetime)"` //创建时间
+	Updated        time.Time `orm:"index;auto_now;type(datetime)"`     //更新时间
 	Views          int64
 	Author         string
-	ReplyTime      time.Time `orm:"index"`
-	Replycount     int64
-	ReplylastUsrID int64
+	ReplyTime      time.Time `orm:"index;null"` // 最后回复时间
+	Replycount     int64     `orm:"default(0)"` //回复统计
+	ReplylastUsrID int64     `orm:"null"`       // 恢复用户ID
 }
 
 func RegisterDB() {

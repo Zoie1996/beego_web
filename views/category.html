@@ -1,14 +1,12 @@
 {{template "header"}}
 
-<title>文章</title>
+<title>分类 - 我的 beego 博客</title>
 
 <body>
     {{template "navbar".}}
-
-
     <div class="container">
         <h1>分类列表</h1>
-        <form action="/category" method="GET" style="height:40px;margin-left:-28px">
+        <form action="/category" method="GET" style="height:40px;margin-left:-28px;margin-top:20px">
             <div class="col-lg-10">
                 <div class='input-group col-lg-4'>
                     <input class="form-control required" type="text" placeholder="请输入分类名称" id="name" name="name"

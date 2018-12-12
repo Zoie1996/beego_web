@@ -10,5 +10,7 @@ func init() {
 	beego.Router("/", &controllers.HomeController{})
 	beego.Router("/login", &controllers.LoginController{})
 	beego.Router("/topic", &controllers.TopicController{})
+	// 自动理由
+	beego.AutoRouter(&controllers.TopicController{})
 	beego.Router("/category", &controllers.CategoryController{})
 }

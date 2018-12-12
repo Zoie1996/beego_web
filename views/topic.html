@@ -1,24 +1,36 @@
 {{template "header"}}
 
-<title>文章</title>
+<title>文章 - 我的 beego 博客</title>
 
 <body>
     {{template "navbar".}}
 
 
-    <div class="container" margin-top="100px">
-        <div class="page-header">
-            <h1>我的第一篇文章</h1>
-            <h6 class="text-muted">文章发表于2018年XX月XX日</h6>
-            <a href="">欢迎观看第一篇博客,xxxxxxx</a>
-        </div>
-    </div>
-    <div class="container" margin-top="100px">
-        <div class="page-header">
-            <h1>我的第一篇文章</h1>
-            <h6 class="text-muted">文章发表于2018年XX月XX日</h6>
-            <a href="">欢迎观看第一篇博客,xxxxxxx</a>
-        </div>
+    <div class="container" style="margin-bottom:30px">
+        <h1>文章列表</h1>
+        <button type="submit" class="btn btn-success" name="submit"><a href="/topic/add" style="text-decoration:none;color: #fff;">添加文章</a></button>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>名称</th>
+                    <th>文章数</th>
+                    <th>操作</th>
+                    <th>浏览</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Categories}}
+                <tr>
+                    <td>{{.ID}}</td>
+                    <td>{{.Title}}</td>
+                    <td>{{.TopicCount}}</td>
+                    <td>{{.TopicCount}}</td>
+                    <td>{{.TopicCount}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
     </div>
 
 </body>

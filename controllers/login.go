@@ -39,7 +39,6 @@ func (self *LoginController) Post() {
 	self.Data["Success"] = false
 	self.Data["errMsg"] = "用户名或密码错误"
 
-
 }
 
 func checkAccount(ctx *context.Context) bool {
