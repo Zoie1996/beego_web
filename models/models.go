@@ -39,6 +39,7 @@ type Topic struct {
 	ReplyTime      time.Time `orm:"auto_now;type(datetime)"` // 最后回复时间
 	Replycount     int64     `orm:"default(0)"`              // 回复统计
 	ReplylastUsrID int64     `orm:"null"`                    // 恢复用户ID
+	Category       *Category `orm:"rel(one);default(1)"`     // 文章分类
 }
 
 // RegisterDB 注册数据库
@@ -50,21 +51,28 @@ func RegisterDB() {
 	}
 	orm.RegisterModel(new(Category), new(Topic))
 	orm.RegisterDriver(_SQLITES_DRIVER, orm.DRSqlite)
+	// 设置为 UTC 时间
+	orm.DefaultTimeLoc = time.UTC
 	// 默认数据库名称"default" 驱动名称 数据库名称 最大连接数
 	orm.RegisterDataBase("default", _SQLITES_DRIVER, _DB_NAME, 10)
 }
 
 // AddTopic 添加文章
-func AddTopic(id, title, content string) error {
+func AddTopic(id, title, content, c string) error {
+	cid, err := strconv.ParseInt(c, 10, 64)
+	if err != nil {
+		return err
+	}
 	o := orm.NewOrm()
-	topic := &Topic{Title: title, Content: content}
-	var err error
+	category := &Category{ID: cid}
+
+	topic := &Topic{Title: title, Content: content, Category: category}
 	if len(id) == 0 {
 		// 添加文章
 		_, err = o.Insert(topic)
 	} else {
 		// 修改文章
-		ModifyTopic(id, title, content)
+		ModifyTopic(id, title, content, category)
 	}
 	return err
 
@@ -121,7 +129,7 @@ func GetTopicModify(id string) (*Topic, error) {
 	return topic, err
 }
 
-func ModifyTopic(id, title, content string) error {
+func ModifyTopic(id, title, content string, category *Category) error {
 	tid, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		return err
@@ -132,6 +140,7 @@ func ModifyTopic(id, title, content string) error {
 	if err == nil {
 		topic.Title = title
 		topic.Content = content
+		topic.Category = category
 		o.Update(topic)
 	}
 	return err

@@ -15,15 +15,17 @@
 <body>
   {{template "navbar".}}
 
-  {{range .Topics}}
+
   <div class="container">
-    <div class="page-header" style="margin:10px 0">
+    {{range .Topics}}
+    <div class="page-header" id="{{.ID}}">
       <h1>{{.Title}}</h1>
-      <h5 class="text-muted">文章发表于{{.Created.Format "2006年01月02日"}}，共有{{.Views}}次浏览，{{.Replycount}}个评论</h6>
-        <h4><a href="/topic/view/{{.ID}}" style="text-decoration:none;color: rgb(133, 130, 130);">{{.Content}}</a></h4>
+      <h5 class="text-muted">文章发表于{{.Created.Format "2006年01月02日"}}，共有{{.Views}}次浏览，{{.Replycount}}个评论</h5>
+      <h4><a href="/topic/view/{{.ID}}" style="text-decoration:none;color: rgb(133, 130, 130);">{{.Content}}</a></h4>
     </div>
+    {{end}}
   </div>
-  {{end}}
+
 
 
 </body>
@@ -41,10 +43,12 @@
       $(".alert-warning").show(2000);
       return false
     }
-
-
   })
+
+  // $(".page-header").click(function() {
+  //   id = $(".page-header").
+  // })
 </script>
 
 
-</html>
+</html> 
