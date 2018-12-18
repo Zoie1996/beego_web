@@ -13,4 +13,6 @@ func init() {
 	// 自动路由
 	beego.AutoRouter(&controllers.TopicController{})
 	beego.Router("/category", &controllers.CategoryController{})
+	beego.Router("/reply", &controllers.ReplyController{})
+	beego.Router("/reply/add", &controllers.ReplyController{}, "post:Add")
 }

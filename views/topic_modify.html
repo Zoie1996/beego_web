@@ -7,7 +7,7 @@
     <div class="container">
         <h1>修改文章</h1>
         <form action="/topic" method="POST" style="margin-top:20px">
-            <input type="hidden" name="id" value="{{.TID}}">
+            <input type="hidden" name="id" value="{{.Topic.ID}}">
             <div class="col-lg-10">
                 <div class="form-group">
                     <label for="name">文章名称</label>
@@ -16,7 +16,7 @@
 
                 <div class="form-group">
                     <label for="name">文章分类</label>
-                    <select class="form-control selectpicker" name="category">
+                    <select class="form-control" name="category">
                         {{range .categories}}
                         <option name="category" value="{{.ID}}"> {{.Title}}</option>
                         {{end}}
@@ -30,8 +30,6 @@
             </div>
         </form>
     </div>
-
-
 </body>
 <!-- <script type="text/javascript">
     $("button").click(function () {

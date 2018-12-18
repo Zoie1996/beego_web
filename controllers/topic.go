@@ -38,7 +38,12 @@ func (self *TopicController) Post() {
 	if err != nil {
 		beego.Error(err)
 	}
-	self.Redirect("/topic", 302)
+	if len(id) == 0 {
+		self.Redirect("/topic", 302)
+	} else {
+		self.Redirect("/topic/view/"+id, 302)
+
+	}
 }
 
 func (self *TopicController) Add() {
@@ -61,14 +66,16 @@ func (self *TopicController) Del() {
 
 func (self *TopicController) View() {
 	self.TplName = "topic_view.html"
+	tid := self.Ctx.Input.Param("0")
 	var err error
-	self.Data["Topic"], err = models.GetTopic(self.Ctx.Input.Param("0"))
+	self.Data["Topic"], err = models.GetTopic(tid)
 	if err != nil {
 		beego.Error(err)
 		self.Redirect("/", 302)
 		return
 	}
-	self.Data["TID"] = self.Ctx.Input.Param("0")
+	self.Data["replies"], err = models.GetReplies(tid)
+
 }
 func (self *TopicController) Modify() {
 	self.TplName = "topic_modify.html"
@@ -80,8 +87,7 @@ func (self *TopicController) Modify() {
 		return
 	}
 	self.Data["Topic"] = Topic
-
-	self.Data["TID"] = self.Ctx.Input.Param("0")
+	// self.Data["TID"] = self.Ctx.Input.Param("0")
 	categories, err1 := models.GetAllCategories()
 	if err1 != nil {
 		beego.Error(err1)

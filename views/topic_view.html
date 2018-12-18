@@ -11,11 +11,40 @@
         <div style="font-size:25px">{{.Topic.Content}}</div>
 
         <div class="text-right">
-            <a class="btn btn-success" href="/topic/modify/{{.TID}}" style="text-decoration:none;color: #fff;">
+            <a class="btn btn-success" href="/topic/modify/{{.Topic.ID}}" style="text-decoration:none;color: #fff;">
                 修改文章
             </a>
         </div>
     </div>
+    <div class="container">
+
+        {{range .replies}}
+        <div style="margin-left:30px">
+            <h4>{{.Name}} <small>{{.Created.Format "2006-01-02 01:01:01"}}</small> <a href="/reply/delete">删除</a></h4>
+            <p>{{.Content}}</p>
+        </div>
+        {{end}}
+    </div>
+    <div class="container">
+        <h3>文章回复</h3>
+        <form action="/reply/add" method="POST" style="margin-top:20px">
+            <input type="hidden" name="tid" value="{{.Topic.ID}}">
+            <div class="col-lg-10">
+                <div class="form-group">
+                    <label for="name">回复昵称</label>
+                    <input type="text" class="form-control" name="nikename">
+                </div>
+                <div class="form-group">
+                    <label for="name">回复内容</label>
+                    <textarea class="form-control" type="text" rows="10" name="content"></textarea>
+                </div>
+                <div class="text-right">
+                    <button type="submit" class="btn btn-success" name="submit">提交回复</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
 
 </body>
 <script src="https://cdn.bootcss.com/twitter-bootstrap/3.0.0-rc2/js/dropdown.min.js"></script>

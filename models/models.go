@@ -1,19 +1,20 @@
 package models
 
 import (
-	"os"
-	"path"
+	// "os"
+	// "path"
 	"strconv"
 	"time"
 
-	"github.com/Unknwon/com"
+	// "github.com/Unknwon/com"
 	"github.com/astaxie/beego/orm"
-	_ "github.com/mattn/go-sqlite3"
+	// _ "github.com/mattn/go-sqlite3"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 const (
-	_DB_NAME        = "data/beeblog.db"
-	_SQLITES_DRIVER = "sqlite3"
+	// _DB_NAME        = "data/beeblog.db"
+	_SQLITES_DRIVER = "mysql"
 )
 
 type Category struct {
@@ -30,10 +31,10 @@ type Topic struct {
 	ID             int64
 	UID            int64     // 用户ID
 	Title          string    // 文章标题
-	Content        string    `orm:"size(5000)"`                        //文章内容
+	Content        string    `orm:"size(5000)"`                        // 文章内容
 	Attachment     string    `orm:"null"`                              // 附件
-	Created        time.Time `orm:"index;auto_now_add;type(datetime)"` //创建时间
-	Updated        time.Time `orm:"index;auto_now;type(datetime)"`     //更新时间
+	Created        time.Time `orm:"index;auto_now_add;type(datetime)"` // 创建时间
+	Updated        time.Time `orm:"index;auto_now;type(datetime)"`     // 更新时间
 	Views          int64     // 浏览
 	Author         string    // 作者
 	ReplyTime      time.Time `orm:"auto_now;type(datetime)"` // 最后回复时间
@@ -42,19 +43,54 @@ type Topic struct {
 	Category       *Category `orm:"rel(one);default(1)"`     // 文章分类
 }
 
+type Comment struct {
+	ID      int64     // 评论ID
+	Topic   *Topic    `orm:"rel(one)"` // 文章ID
+	Name    string    // 评论昵称
+	Content string    `orm:"size(1000)"`                        // 评论内容
+	Created time.Time `orm:"index;auto_now_add;type(datetime)"` // 创建时间
+
+}
+
 // RegisterDB 注册数据库
 func RegisterDB() {
-	if !com.IsExist(_DB_NAME) {
-
-		os.MkdirAll(path.Dir(_DB_NAME), os.ModePerm)
-		os.Create(_DB_NAME)
-	}
-	orm.RegisterModel(new(Category), new(Topic))
-	orm.RegisterDriver(_SQLITES_DRIVER, orm.DRSqlite)
-	// 设置为 UTC 时间
-	orm.DefaultTimeLoc = time.UTC
+	// if !com.IsExist(_DB_NAME) {
+	// 	os.MkdirAll(path.Dir(_DB_NAME), os.ModePerm)
+	// 	os.Create(_DB_NAME)
+	// }
+	orm.RegisterDriver(_SQLITES_DRIVER, orm.DRMySQL)
 	// 默认数据库名称"default" 驱动名称 数据库名称 最大连接数
-	orm.RegisterDataBase("default", _SQLITES_DRIVER, _DB_NAME, 10)
+	orm.RegisterDataBase("default", _SQLITES_DRIVER, "root:root@/myblog?charset=utf8")
+	orm.RegisterModel(new(Category), new(Topic), new(Comment))
+}
+
+// AddReply 添加评论
+
+func AddReply(tid, name, content string) error {
+	topicid, err := strconv.ParseInt(tid, 10, 64)
+	if err != nil {
+		return err
+	}
+	o := orm.NewOrm()
+	topic := &Topic{ID: topicid}
+	comment := &Comment{Topic: topic, Name: name, Content: content}
+	_, err = o.Insert(comment)
+	return err
+}
+
+// GetReplies 获取文章评论
+func GetReplies(id string) (replies []*Comment, err error) {
+	tid, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	topic := &Topic{ID: tid}
+	o := orm.NewOrm()
+	replies = make([]*Comment, 0)
+	qs := o.QueryTable("Comment")
+	_, err = qs.Filter("Topic", topic).All(&replies)
+	return replies, err
+
 }
 
 // AddTopic 添加文章
@@ -66,13 +102,14 @@ func AddTopic(id, title, content, c string) error {
 	o := orm.NewOrm()
 	category := &Category{ID: cid}
 
-	topic := &Topic{Title: title, Content: content, Category: category}
 	if len(id) == 0 {
 		// 添加文章
+		topic := &Topic{Title: title, Content: content, Category: category}
+
 		_, err = o.Insert(topic)
 	} else {
 		// 修改文章
-		ModifyTopic(id, title, content, category)
+		err = ModifyTopic(id, title, content, category)
 	}
 	return err
 
