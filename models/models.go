@@ -82,11 +82,10 @@ func DeleteReply(id, tid string) error {
 	topic := new(Topic)
 	qs := o.QueryTable("topic")
 	err = qs.Filter("id", topicid).One(topic)
-	if err != nil {
-		return err
+	if err == nil {
+		topic.Replycount--
+		o.Update(topic)
 	}
-	topic.Replycount--
-	o.Update(topic)
 	return err
 }
 
@@ -103,11 +102,11 @@ func AddReply(tid, name, content string) error {
 	topic = new(Topic)
 	qs := o.QueryTable("topic")
 	err = qs.Filter("id", topicid).One(topic)
-	if err != nil {
-		return err
+	if err == nil {
+		topic.Replycount++
+		topic.ReplyTime = time.Now()
+		o.Update(topic)
 	}
-	topic.Replycount++
-	o.Update(topic)
 	return err
 }
 
@@ -214,6 +213,7 @@ func GetTopicModify(id string) (*Topic, error) {
 	return topic, err
 }
 
+// ModifyTopic 修改文章
 func ModifyTopic(id, title, content string, category *Category) error {
 	tid, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
@@ -222,6 +222,26 @@ func ModifyTopic(id, title, content string, category *Category) error {
 	o := orm.NewOrm()
 	topic := &Topic{ID: tid}
 	err = o.Read(topic)
+	// 修改文章分类判断
+	if topic.Category != category {
+		cate := new(Category)
+		qs := o.QueryTable("category")
+		err = qs.Filter("id", topic.Category.ID).One(cate)
+		if err != nil {
+			return err
+		}
+		cate.TopicCount--
+		_, err = o.Update(cate)
+		if err != nil {
+			return err
+		}
+		err = qs.Filter("id", category.ID).One(cate)
+		if err != nil {
+			return err
+		}
+		cate.TopicCount++
+		_, err = o.Update(cate)
+	}
 	if err == nil {
 		topic.Title = title
 		topic.Content = content
