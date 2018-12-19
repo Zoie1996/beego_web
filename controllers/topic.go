@@ -16,16 +16,16 @@ func (self *TopicController) Get() {
 	// 检查是否登录成功
 	self.Data["IsLogin"] = checkAccount(self.Ctx)
 	var err error
-	self.Data["Topics"], err = models.GetAllTopics(false)
+	self.Data["Topics"], err = models.GetAllTopics("0", false)
 	if err != nil {
 		beego.Error(err)
 	}
 }
 func (self *TopicController) Post() {
 	// 检查是否登录
-	// if !checkAccount(self.Ctx) {
-	// 	self.Redirect("/login", 302)
-	// }
+	if !checkAccount(self.Ctx) {
+		self.Redirect("/login", 302)
+	}
 	id := self.Input().Get("id")
 	title := self.Input().Get("title")
 	content := self.Input().Get("content")
@@ -56,7 +56,9 @@ func (self *TopicController) Add() {
 }
 
 func (self *TopicController) Del() {
-	err := models.DelTopic(self.Ctx.Input.Param("0"))
+	id := self.Input().Get("id")
+	cid := self.Input().Get("cid")
+	err := models.DelTopic(id, cid)
 	if err != nil {
 		beego.Error(err)
 	}
@@ -75,6 +77,7 @@ func (self *TopicController) View() {
 		return
 	}
 	self.Data["replies"], err = models.GetReplies(tid)
+	self.Data["IsLogin"] = checkAccount(self.Ctx)
 
 }
 func (self *TopicController) Modify() {
@@ -91,13 +94,6 @@ func (self *TopicController) Modify() {
 	categories, err1 := models.GetAllCategories()
 	if err1 != nil {
 		beego.Error(err1)
-	}
-	for _, category := range categories {
-		if category.ID == Topic.Category.ID {
-			self.Data["IsCategory"] = true
-		} else {
-			self.Data["IsCategory"] = false
-		}
 	}
 	self.Data["categories"] = categories
 }

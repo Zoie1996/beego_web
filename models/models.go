@@ -18,34 +18,36 @@ const (
 )
 
 type Category struct {
-	ID            int64     //分类ID
+	ID            int64     // 分类ID
 	Title         string    // 分类标题
 	Created       time.Time `orm:"index;auto_now_add;type(datetime)"` // 创建时间
-	Views         int64     `orm:"index"`                             //六看
+	Views         int64     `orm:"index"`                             // 浏览量
 	TopicTime     time.Time `orm:"index;auto_now_add;type(datetime)"` // 文章时间
 	TopicCount    int64     // 文章统计
-	TopicasUserID int64     //用户ID
+	TopicasUserID int64     // 用户ID
+	Topic         []*Topic  `orm:"reverse(many)"` // 文章分类反向关系
 }
 
 type Topic struct {
 	ID             int64
-	UID            int64     // 用户ID
-	Title          string    // 文章标题
-	Content        string    `orm:"size(5000)"`                        // 文章内容
-	Attachment     string    `orm:"null"`                              // 附件
-	Created        time.Time `orm:"index;auto_now_add;type(datetime)"` // 创建时间
-	Updated        time.Time `orm:"index;auto_now;type(datetime)"`     // 更新时间
-	Views          int64     // 浏览
-	Author         string    // 作者
-	ReplyTime      time.Time `orm:"auto_now;type(datetime)"` // 最后回复时间
-	Replycount     int64     `orm:"default(0)"`              // 回复统计
-	ReplylastUsrID int64     `orm:"null"`                    // 恢复用户ID
-	Category       *Category `orm:"rel(one);default(1)"`     // 文章分类
+	UID            int64      // 用户ID
+	Title          string     // 文章标题
+	Content        string     `orm:"size(5000)"`                        // 文章内容
+	Attachment     string     `orm:"null"`                              // 附件
+	Created        time.Time  `orm:"index;auto_now_add;type(datetime)"` // 创建时间
+	Updated        time.Time  `orm:"index;auto_now;type(datetime)"`     // 更新时间
+	Views          int64      // 浏览
+	Author         string     // 作者
+	ReplyTime      time.Time  `orm:"auto_now;type(datetime)"` // 最后回复时间
+	Replycount     int64      `orm:"default(0)"`              // 回复统计
+	ReplylastUsrID int64      `orm:"null"`                    // 回复用户ID
+	Category       *Category  `orm:"rel(fk)"`                 // 文章分类
+	Comment        []*Comment `orm:"reverse(many)"`           // 文章评论反向关系
 }
 
 type Comment struct {
 	ID      int64     // 评论ID
-	Topic   *Topic    `orm:"rel(one)"` // 文章ID
+	Topic   *Topic    `orm:"rel(fk)"` // 文章ID
 	Name    string    // 评论昵称
 	Content string    `orm:"size(1000)"`                        // 评论内容
 	Created time.Time `orm:"index;auto_now_add;type(datetime)"` // 创建时间
@@ -64,8 +66,31 @@ func RegisterDB() {
 	orm.RegisterModel(new(Category), new(Topic), new(Comment))
 }
 
-// AddReply 添加评论
+func DeleteReply(id, tid string) error {
+	rid, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return err
+	}
+	topicid, err1 := strconv.ParseInt(tid, 10, 64)
+	if err1 != nil {
+		return err1
+	}
+	o := orm.NewOrm()
+	reply := &Comment{ID: rid}
+	_, err = o.Delete(reply)
 
+	topic := new(Topic)
+	qs := o.QueryTable("topic")
+	err = qs.Filter("id", topicid).One(topic)
+	if err != nil {
+		return err
+	}
+	topic.Replycount--
+	o.Update(topic)
+	return err
+}
+
+// AddReply 添加评论
 func AddReply(tid, name, content string) error {
 	topicid, err := strconv.ParseInt(tid, 10, 64)
 	if err != nil {
@@ -75,6 +100,14 @@ func AddReply(tid, name, content string) error {
 	topic := &Topic{ID: topicid}
 	comment := &Comment{Topic: topic, Name: name, Content: content}
 	_, err = o.Insert(comment)
+	topic = new(Topic)
+	qs := o.QueryTable("topic")
+	err = qs.Filter("id", topicid).One(topic)
+	if err != nil {
+		return err
+	}
+	topic.Replycount++
+	o.Update(topic)
 	return err
 }
 
@@ -94,8 +127,8 @@ func GetReplies(id string) (replies []*Comment, err error) {
 }
 
 // AddTopic 添加文章
-func AddTopic(id, title, content, c string) error {
-	cid, err := strconv.ParseInt(c, 10, 64)
+func AddTopic(id, title, content, categoryID string) error {
+	cid, err := strconv.ParseInt(categoryID, 10, 64)
 	if err != nil {
 		return err
 	}
@@ -105,8 +138,15 @@ func AddTopic(id, title, content, c string) error {
 	if len(id) == 0 {
 		// 添加文章
 		topic := &Topic{Title: title, Content: content, Category: category}
-
 		_, err = o.Insert(topic)
+		category = new(Category)
+		qs := o.QueryTable("category")
+		err = qs.Filter("id", cid).One(category)
+		if err != nil {
+			return err
+		}
+		category.TopicCount++
+		_, err = o.Update(category)
 	} else {
 		// 修改文章
 		err = ModifyTopic(id, title, content, category)
@@ -116,11 +156,19 @@ func AddTopic(id, title, content, c string) error {
 }
 
 // GetAllTopics 获取所有文章列表
-func GetAllTopics(idDecs bool) ([]*Topic, error) {
+func GetAllTopics(id string, idDecs bool) ([]*Topic, error) {
+
+	cid, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return nil, err
+	}
 	o := orm.NewOrm()
 	topics := make([]*Topic, 0)
 	qs := o.QueryTable("Topic")
-	var err error
+	if cid > 0 {
+		// 分类
+		qs = qs.Filter("category_id", cid)
+	}
 	if idDecs {
 		// 根据时间倒序排序
 		_, err = qs.OrderBy("-created").All(&topics)
@@ -184,13 +232,28 @@ func ModifyTopic(id, title, content string, category *Category) error {
 }
 
 // DelTopic 删除文章
-func DelTopic(id string) error {
+func DelTopic(id, cid string) error {
 	tid, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		return err
 	}
+	categoryid, err1 := strconv.ParseInt(cid, 10, 64)
+	if err1 != nil {
+		return err1
+	}
 	o := orm.NewOrm()
 	topic := &Topic{ID: tid}
+	category := new(Category)
+	qs := o.QueryTable("category")
+	err = qs.Filter("id", categoryid).One(category)
+	if err != nil {
+		return err
+	}
+	category.TopicCount--
+	_, err = o.Update(category)
+	if err != nil {
+		return err
+	}
 	_, err = o.Delete(topic)
 	return err
 

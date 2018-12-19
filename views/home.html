@@ -7,7 +7,7 @@
     height: 20px;
     overflow: hidden;
     white-space: nowrap;
-    text-overflow:ellipsis;
+    text-overflow: ellipsis;
   }
 
 </style>
@@ -17,13 +17,26 @@
 
 
   <div class="container">
-    {{range .Topics}}
-    <div class="page-header" id="{{.ID}}">
-      <h1>{{.Title}}</h1>
-      <h5 class="text-muted">文章发表于{{.Created.Format "2006年01月02日"}}，共有{{.Views}}次浏览，{{.Replycount}}个评论</h5>
-      <h4><a href="/topic/view/{{.ID}}" style="text-decoration:none;color: rgb(133, 130, 130);">{{.Content}}</a></h4>
+    <div class="col-md-9">
+      {{range .Topics}}
+      <div class="page-header" id="{{.ID}}">
+        <h1>{{.Title}}</h1>
+        <h5 class="text-muted">文章发表于{{.Created.Format "2006年01月02日"}}，共有{{.Views}}次浏览，{{.Replycount}}个评论</h5>
+        <h4><a href="/topic/view/{{.ID}}" style="text-decoration:none;color: rgb(133, 130, 130);">{{.Content}}</a></h4>
+      </div>
+      {{end}}
     </div>
-    {{end}}
+    <div class="col-md-3">
+      <h3>文章分类</h3>
+      <ul style="margin-left:-18px;">
+        <li><a href="/?cid=0" style="font-size:18px;text-decoration:none;">全部</a></li>
+        {{range .categories}}
+        <li><a href="/?cid={{.ID}}" style="font-size:18px;text-decoration:none;">{{.Title}}</a></li>
+        {{end}}
+      </ul>
+    </div>
+
+
   </div>
 
 
@@ -51,4 +64,4 @@
 </script>
 
 
-</html> 
+</html>

@@ -34,7 +34,7 @@
                     <td>{{.Updated.Format "2006-01-02 01:01:01"}}</td>
                     <td>{{.Views}}</td>
                     <td>{{.Replycount}}</td>
-                    <td><a href="/topic/del/{{.ID}}">删除</a></td>
+                    <td><a href="/topic/del?id={{.ID}}&cid={{.Category.ID}}">删除</a></td>
                 </tr>
                 {{end}}
             </tbody>

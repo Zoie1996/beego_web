@@ -1,6 +1,6 @@
 {{template "header"}}
 
-<title>修改文章 - 我的 beego 博客</title>
+<title>{{.Topic.Title}} - 我的 beego 博客</title>
 
 <body>
     {{template "navbar".}}
@@ -17,8 +17,9 @@
                 <div class="form-group">
                     <label for="name">文章分类</label>
                     <select class="form-control" name="category">
+                        {{$CategoryID := .Topic.Category.ID}}
                         {{range .categories}}
-                        <option name="category" value="{{.ID}}"> {{.Title}}</option>
+                        <option name="category" value="{{.ID}}" {{if eq $CategoryID .ID}} selected {{end}}> {{.Title}}</option>
                         {{end}}
                     </select>
                 </div>

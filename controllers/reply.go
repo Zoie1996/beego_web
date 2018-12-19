@@ -20,3 +20,17 @@ func (self *ReplyController) Add() {
 	}
 	self.Redirect("/topic/view/"+tid, 302)
 }
+
+func (self *ReplyController) Delete() {
+	if !checkAccount(self.Ctx) {
+		return
+	}
+	id := self.Input().Get("rid")
+	tid := self.Input().Get("tid")
+	err := models.DeleteReply(id,tid)
+	if err != nil {
+		beego.Error(err)
+	}
+	self.Redirect("/topic/view/"+tid, 302)
+
+}
