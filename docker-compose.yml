@@ -1,0 +1,17 @@
+version: '2'
+services:
+  web:
+    build: .
+    restart: always
+    ports:
+      - "80:80"
+      - "3306:3306"
+    volumes:
+      - $PWD/myblog:/go/src/myblog
+    links:
+      - db
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
