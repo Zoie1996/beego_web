@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"myblog/models"
+	"path"
 
 	"github.com/astaxie/beego"
 )
@@ -10,6 +11,7 @@ type TopicController struct {
 	beego.Controller
 }
 
+// Get 获取文章
 func (self *TopicController) Get() {
 	self.TplName = "topic.html"
 	self.Data["IsTopic"] = true
@@ -21,6 +23,8 @@ func (self *TopicController) Get() {
 		beego.Error(err)
 	}
 }
+
+// Post 添加文章
 func (self *TopicController) Post() {
 	// 检查是否登录
 	if !checkAccount(self.Ctx) {
@@ -30,11 +34,28 @@ func (self *TopicController) Post() {
 	title := self.Input().Get("title")
 	content := self.Input().Get("content")
 	category := self.Input().Get("category")
+	// 获取附件
+	f, fh, err := self.GetFile("uploadname")
+	if err != nil {
+		beego.Error(err)
+	}
+	// 关闭文件
+
+	var attachment string
+	if fh != nil {
+		attachment = fh.Filename
+		beego.Info(attachment)
+		err = self.SaveToFile("uploadname", path.Join("attachment", attachment))
+		if err != nil {
+			beego.Error(err)
+		}
+	}
+	defer f.Close()
 	if len(title) == 0 || len(content) == 0 {
 		self.Redirect("/topic/add", 302)
 		return
 	}
-	err := models.AddTopic(id, title, content, category)
+	err = models.AddTopic(id, title, content, category, attachment)
 	if err != nil {
 		beego.Error(err)
 	}
@@ -46,6 +67,7 @@ func (self *TopicController) Post() {
 	}
 }
 
+// Add 添加文章
 func (self *TopicController) Add() {
 	self.TplName = "topic_add.html"
 	var err error
@@ -55,6 +77,7 @@ func (self *TopicController) Add() {
 	}
 }
 
+// Del 删除文章
 func (self *TopicController) Del() {
 	id := self.Input().Get("id")
 	cid := self.Input().Get("cid")
@@ -66,6 +89,7 @@ func (self *TopicController) Del() {
 	return
 }
 
+// View 浏览文章
 func (self *TopicController) View() {
 	self.TplName = "topic_view.html"
 	tid := self.Ctx.Input.Param("0")
@@ -80,6 +104,8 @@ func (self *TopicController) View() {
 	self.Data["IsLogin"] = checkAccount(self.Ctx)
 
 }
+
+// Modify 文章详情
 func (self *TopicController) Modify() {
 	self.TplName = "topic_modify.html"
 	Topic, err := models.GetTopicModify(self.Ctx.Input.Param("0"))

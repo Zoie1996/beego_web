@@ -3,6 +3,8 @@ package models
 import (
 	// "os"
 	// "path"
+	"os"
+	"path"
 	"strconv"
 	"time"
 
@@ -38,11 +40,11 @@ type Topic struct {
 	Updated        time.Time  `orm:"index;auto_now;type(datetime)"`     // 更新时间
 	Views          int64      // 浏览
 	Author         string     // 作者
-	ReplyTime      time.Time  `orm:"auto_now;type(datetime)"` // 最后回复时间
-	Replycount     int64      `orm:"default(0)"`              // 回复统计
-	ReplylastUsrID int64      `orm:"null"`                    // 回复用户ID
-	Category       *Category  `orm:"rel(fk)"`                 // 文章分类
-	Comment        []*Comment `orm:"reverse(many)"`           // 文章评论反向关系
+	ReplyTime      time.Time  `orm:"auto_now_add;type(datetime)"` // 最后回复时间
+	Replycount     int64      `orm:"default(0)"`                  // 回复统计
+	ReplylastUsrID int64      `orm:"null"`                        // 回复用户ID
+	Category       *Category  `orm:"rel(fk)"`                     // 文章分类
+	Comment        []*Comment `orm:"reverse(many)"`               // 文章评论反向关系
 }
 
 type Comment struct {
@@ -62,7 +64,7 @@ func RegisterDB() {
 	// }
 	orm.RegisterDriver(_SQLITES_DRIVER, orm.DRMySQL)
 	// 默认数据库名称"default" 驱动名称 数据库名称 最大连接数
-	orm.RegisterDataBase("default", _SQLITES_DRIVER, "root:root@/myblog?charset=utf8")
+	orm.RegisterDataBase("default", _SQLITES_DRIVER, "root:root@/myblog?charset=utf8&loc=Asia%2FShanghai")
 	orm.RegisterModel(new(Category), new(Topic), new(Comment))
 }
 
@@ -77,14 +79,30 @@ func DeleteReply(id, tid string) error {
 	}
 	o := orm.NewOrm()
 	reply := &Comment{ID: rid}
-	_, err = o.Delete(reply)
+	if o.Read(reply) == nil {
+		_, err = o.Delete(reply)
+		if err != nil {
+			return nil
+		}
+	}
 
-	topic := new(Topic)
-	qs := o.QueryTable("topic")
-	err = qs.Filter("id", topicid).One(topic)
-	if err == nil {
-		topic.Replycount--
-		o.Update(topic)
+	// topic := new(Topic)
+	// qs := o.QueryTable("topic")
+	// err = qs.Filter("id", topicid).One(topic)
+	// if err == nil {
+	// 	topic.Replycount--
+	// 	o.Update(topic)
+	// }
+	replies := make([]*Comment, 0)
+	_, err = o.QueryTable("comment").Filter("topic_id", tid).OrderBy("-created").All(&replies)
+	topic := &Topic{ID: topicid}
+	if o.Read(topic) == nil {
+		topic.Replycount = int64(len(replies))
+		topic.ReplyTime = replies[0].Created
+		_, err = o.Update(topic)
+		if err != nil {
+			return err
+		}
 	}
 	return err
 }
@@ -126,7 +144,7 @@ func GetReplies(id string) (replies []*Comment, err error) {
 }
 
 // AddTopic 添加文章
-func AddTopic(id, title, content, categoryID string) error {
+func AddTopic(id, title, content, categoryID, attachment string) error {
 	cid, err := strconv.ParseInt(categoryID, 10, 64)
 	if err != nil {
 		return err
@@ -136,7 +154,7 @@ func AddTopic(id, title, content, categoryID string) error {
 
 	if len(id) == 0 {
 		// 添加文章
-		topic := &Topic{Title: title, Content: content, Category: category}
+		topic := &Topic{Title: title, Content: content, Category: category, Attachment: attachment}
 		_, err = o.Insert(topic)
 		category = new(Category)
 		qs := o.QueryTable("category")
@@ -148,7 +166,7 @@ func AddTopic(id, title, content, categoryID string) error {
 		_, err = o.Update(category)
 	} else {
 		// 修改文章
-		err = ModifyTopic(id, title, content, category)
+		err = ModifyTopic(id, title, content, attachment, category)
 	}
 	return err
 
@@ -214,7 +232,7 @@ func GetTopicModify(id string) (*Topic, error) {
 }
 
 // ModifyTopic 修改文章
-func ModifyTopic(id, title, content string, category *Category) error {
+func ModifyTopic(id, title, content, attachment string, category *Category) error {
 	tid, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		return err
@@ -242,11 +260,18 @@ func ModifyTopic(id, title, content string, category *Category) error {
 		cate.TopicCount++
 		_, err = o.Update(cate)
 	}
+	var OldAttach string
 	if err == nil {
+		OldAttach = topic.Attachment
 		topic.Title = title
 		topic.Content = content
 		topic.Category = category
+		topic.Attachment = attachment
 		o.Update(topic)
+	}
+	// 更新后删除旧文件
+	if len(OldAttach) > 0 {
+		os.Remove(path.Join("attachment", OldAttach))
 	}
 	return err
 }

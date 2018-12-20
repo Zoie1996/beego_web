@@ -6,7 +6,7 @@
     {{template "navbar".}}
     <div class="container">
         <h1>修改文章</h1>
-        <form action="/topic" method="POST" style="margin-top:20px">
+        <form action="/topic" method="POST" style="margin-top:20px" enctype="multipart/form-data">
             <input type="hidden" name="id" value="{{.Topic.ID}}">
             <div class="col-lg-10">
                 <div class="form-group">
@@ -26,6 +26,13 @@
                 <div class="form-group">
                     <label for="name">文章内容</label>
                     <textarea class="form-control" type="text" rows="10" name="content">{{.Topic.Content}}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="name">
+                        文章附件
+                        <a href="/attachment/{{.Topic.Attachment}}">{{.Topic.Attachment}}</a>
+                    </label>
+                    <input type="file" class="file" name="uploadname" />
                 </div>
                 <button type="submit" class="btn btn-success" name="submit">修改</button>
             </div>

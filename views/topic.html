@@ -23,6 +23,7 @@
                     <th>最后更新</th>
                     <th>浏览</th>
                     <th>回复数</th>
+                    <th>回复时间</th>
                     <th>操作</th>
                 </tr>
             </thead>
@@ -31,9 +32,10 @@
                 <tr>
                     <td>{{.ID}}</td>
                     <td><a href="/topic/view/{{.ID}}">{{.Title}}</a></td>
-                    <td>{{.Updated.Format "2006-01-02 01:01:01"}}</td>
+                    <td>{{.Updated.Format "2006-01-02"}}</td>
                     <td>{{.Views}}</td>
                     <td>{{.Replycount}}</td>
+                    <td>{{if eq .Replycount 0}}-{{else}}{{.ReplyTime}}{{end}}</td>
                     <td><a href="/topic/del?id={{.ID}}&cid={{.Category.ID}}">删除</a></td>
                 </tr>
                 {{end}}
