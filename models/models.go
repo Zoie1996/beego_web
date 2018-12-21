@@ -63,8 +63,32 @@ func RegisterDB() {
 	// 	os.Create(_DB_NAME)
 	// }
 	orm.RegisterDriver(_SQLITES_DRIVER, orm.DRMySQL)
+
+	// dbType := beego.AppConfig.String("db_type")
+	// //连接名称
+	// dbAlias := beego.AppConfig.String(dbType + "::db_alias")
+	// //数据库名称
+	// dbName := beego.AppConfig.String(dbType + "::db_name")
+	// //数据库连接用户名
+	// dbUser := beego.AppConfig.String(dbType + "::db_user")
+	// //数据库连接用户名
+	// dbPwd := beego.AppConfig.String(dbType + "::db_pwd")
+	// //数据库IP（域名）
+	// dbHost := beego.AppConfig.String(dbType + "::db_host")
+	// //数据库端口
+	// dbPort := beego.AppConfig.String(dbType + "::db_port")
+	// switch dbType {
+	// case "sqlite3":
+	// 	orm.RegisterDataBase(dbAlias, dbType, dbName)
+	// case "mysql":
+	// 	dbCharset := beego.AppConfig.String(dbType + "::db_charset")
+	// 	orm.RegisterDataBase(dbAlias, dbType, dbUser+":"+dbPwd+"@tcp("+dbHost+":"+
+	// 		dbPort+")/"+dbName+"?charset="+dbCharset, 30)
+	// }
 	// 默认数据库名称"default" 驱动名称 数据库名称 最大连接数
 	orm.RegisterDataBase("default", _SQLITES_DRIVER, "root:root@/myblog?charset=utf8&loc=Asia%2FShanghai")
+	// orm.RegisterDataBase("default", _SQLITES_DRIVER, "root:root@tcp(127.0.0.1:3306)/myblog?charset=utf8", 30)
+	// orm.Debug = true
 	orm.RegisterModel(new(Category), new(Topic), new(Comment))
 }
 

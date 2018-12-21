@@ -1,17 +1,22 @@
 version: '2'
 services:
+  db:
+    image: mysql:5.7.23
+    ports:
+      - "3306:3306"
+    # restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=root
+      - MYSQL_DATABASE=myblog
   web:
     build: .
+    command: bee run
     restart: always
     ports:
       - "80:80"
-      - "3306:3306"
+      - "8000:8000"
     volumes:
-      - $PWD/myblog:/go/src/myblog
+      - .:/go/src/myblog
     links:
       - db
-  db:
-    image: mysql
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: 123456

@@ -49,8 +49,8 @@ func (self *TopicController) Post() {
 		if err != nil {
 			beego.Error(err)
 		}
+		defer f.Close()
 	}
-	defer f.Close()
 	if len(title) == 0 || len(content) == 0 {
 		self.Redirect("/topic/add", 302)
 		return
